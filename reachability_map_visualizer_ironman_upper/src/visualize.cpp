@@ -27,6 +27,7 @@ namespace reachability_map_visualizer_sample{
     robot->calcCenterOfMass();
     std::shared_ptr<reachability_map_visualizer::ReachabilityMap> map = std::make_shared<reachability_map_visualizer::ReachabilityMap>();
 
+    // ここに平面を出すときは、このyamlから読み取るときにif文で、x=?みたいな感じでやるとよい。
     reachability_map_visualizer::readMap(ros::package::getPath("reachability_map_visualizer_ironman_upper") + "/config/ironman_upper_hand.yaml",map);
     map->boxSize = cnoid::Vector3(map->posResolution, map->posResolution, 0.001);
     viewer->objects(robot);

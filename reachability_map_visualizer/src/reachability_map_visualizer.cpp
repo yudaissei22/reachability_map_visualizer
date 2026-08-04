@@ -68,6 +68,8 @@ namespace reachability_map_visualizer {
   void createMapSub(const std::shared_ptr<ReachabilityMapParam>& param, const std::shared_ptr<ReachabilityMap>& map,
                     const std::vector<cnoid::Vector3>& xyz_table, const std::vector<double>& init_pose, std::mutex& mutex, int thread_num) {
     cnoid::BodyPtr tmp_robot = param->robot->clone();
+    std::map<cnoid::BodyPtr, cnoid::BodyPtr> modelMap;
+    modelMap[param->robot] = tmp_robot;
     std::vector<cnoid::LinkPtr> tmp_variables;
     for (int v_num = 0; v_num < param->variables.size(); v_num++) {
       tmp_variables.push_back(tmp_robot->joint(param->variables[v_num]->jointId()));
@@ -87,13 +89,16 @@ namespace reachability_map_visualizer {
         bool solved = false;
         targetPose.linear() = Eigen::Quaterniond::UnitRandom().matrix();
         for (int e=0; e< param->endEffectors.size() && !solved; e++) {
-          // joint limit
-          std::vector<std::shared_ptr<ik_constraint2::IKConstraint> > constraints0;
-          for(int j_id=0;j_id<tmp_robot->numJoints();j_id++){
-            std::shared_ptr<ik_constraint2::JointLimitConstraint> constraint = std::make_shared<ik_constraint2::JointLimitConstraint>();
-            constraint->joint() = tmp_robot->joint(j_id);
-            constraints0.push_back(constraint);
+          std::vector<std::vector<std::shared_ptr<ik_constraint2::IKConstraint> > > all_constraints;
+          for (const auto& constraint_set : param->constraints) {
+            std::vector<std::shared_ptr<ik_constraint2::IKConstraint> > cloned_constraints;
+            cloned_constraints.reserve(constraint_set.size());
+            for (const auto& constraint : constraint_set) {
+              cloned_constraints.push_back(constraint->clone(modelMap));
+            }
+            all_constraints.push_back(cloned_constraints);
           }
+
           // ee
           std::vector<std::shared_ptr<ik_constraint2::IKConstraint> > constraints1;
           std::shared_ptr<ik_constraint2::PositionConstraint> ee_constraint = std::make_shared<ik_constraint2::PositionConstraint>();
@@ -108,7 +113,7 @@ namespace reachability_map_visualizer {
             ee_constraint->weight()[w+3] = param->weight[w+3] * param->posResolution / 1e-3;
           }
           constraints1.push_back(ee_constraint);
-          std::vector<std::vector<std::shared_ptr<ik_constraint2::IKConstraint> > > all_constraints{constraints0, constraints1};
+          all_constraints.push_back(constraints1);
           std::vector<std::shared_ptr<prioritized_qp_base::Task> > prevTasks;
 
           frame2Link(init_pose,tmp_variables);
