@@ -14,6 +14,12 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(choreonoid REQUIRED)
 
+set(CHOREONOID_LIBRARIES_ABS)
+foreach(lib ${CHOREONOID_LIBRARIES})
+  find_library(${lib}_abs NAMES ${lib} PATHS ${CHOREONOID_LIBRARY_DIRS})
+  set(CHOREONOID_LIBRARIES_ABS ${CHOREONOID_LIBRARIES_ABS} ${${lib}_abs})
+endforeach(lib)
+
 catkin_package(
 )
 
@@ -27,6 +33,7 @@ add_library(CnoidReachabilityMapVisualizerSamplePlugin SHARED
   src/CnoidReachabilityMapVisualizerSamplePlugin.cpp
   src/jaxon_hand.cpp
   src/visualize.cpp
+  src/view_4uu.cpp
   src/solvability_bar.cpp
   )
 target_link_libraries(CnoidReachabilityMapVisualizerSamplePlugin
@@ -34,3 +41,13 @@ target_link_libraries(CnoidReachabilityMapVisualizerSamplePlugin
   ${CHOREONOID_BODY_PLUGIN_LIBRARIES}
   )
 set_target_properties(CnoidReachabilityMapVisualizerSamplePlugin PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CHOREONOID_PLUGIN_DIR})
+
+add_executable(view_4uu
+  src/view_4uu_main.cpp
+  src/view_4uu.cpp
+  )
+target_link_libraries(view_4uu
+  ${catkin_LIBRARIES}
+  ${CHOREONOID_LIBRARIES_ABS}
+  ${CHOREONOID_BODY_PLUGIN_LIBRARIES}
+  )

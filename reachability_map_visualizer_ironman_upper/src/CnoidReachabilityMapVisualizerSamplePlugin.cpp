@@ -22,6 +22,15 @@ namespace reachability_map_visualizer_sample{
   };
   typedef cnoid::ref_ptr<visualizeItem> visualizeItemPtr;
 
+  void view_4uu();
+  class view4UUItem : public choreonoid_viewer::ViewerBaseItem {
+  public:
+    static void initializeClass(cnoid::ExtensionManager* ext){ ext->itemManager().registerClass<view4UUItem>("view4UUItem"); }
+  protected:
+    virtual void main() override{ view_4uu(); return;}
+  };
+  typedef cnoid::ref_ptr<view4UUItem> view4UUItemPtr;
+
   void solvability_bar();
   class solvability_barItem : public choreonoid_viewer::ViewerBaseItem {
   public:
@@ -42,6 +51,7 @@ namespace reachability_map_visualizer_sample{
     {
       jaxon_handItem::initializeClass(this);
       visualizeItem::initializeClass(this);
+      view4UUItem::initializeClass(this);
       solvability_barItem::initializeClass(this);
       return true;
     }
