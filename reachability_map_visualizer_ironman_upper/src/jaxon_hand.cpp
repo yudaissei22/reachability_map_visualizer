@@ -54,7 +54,9 @@ namespace reachability_map_visualizer_sample{
       ルートリンクの姿勢を回転無しに設定する。
      */
     std::vector<double> reset_manip_pose{
-      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
+					 0.0, 0.0, 0.0, 0.0,
+					 0.0, 0.0, 0.0, 0.0,					 
+					 0.0, 0.0, 0.0, 0.0, 0.0,
     };
 
     for(int j=0; j < param->robot->numJoints(); ++j){
@@ -108,7 +110,7 @@ namespace reachability_map_visualizer_sample{
 
     {
       std::shared_ptr<ik_constraint2::JointAngleConstraint_4UU> constraint = std::make_shared<ik_constraint2::JointAngleConstraint_4UU>();
-      constraint->A_joint() = param->robot->joint("B4_base");
+      constraint->A_joint() = param->robot->joint("B4_BASE");
       constraint->B_joint() = param->robot->joint("SHOULDER_PITCH");
       constraints.push_back(constraint);
     }
@@ -128,7 +130,7 @@ namespace reachability_map_visualizer_sample{
      */
 
     // param->variables.push_back(param->robot->joint("B4_BASE"));
-    param->variables.push_back(param->robot->joint("B4_base")); // yaw     
+    param->variables.push_back(param->robot->joint("B4_BASE")); // yaw     
     param->variables.push_back(param->robot->joint("B4_UU")); // roll
     param->variables.push_back(param->robot->joint("B4_END_YAW")); // roll
     param->variables.push_back(param->robot->joint("SHOULDER_PITCH")); // yaw
@@ -173,7 +175,10 @@ namespace reachability_map_visualizer_sample{
       testPerGridは、1グリッドあたり何回テストするのか？ということ？
       といわれても、あまりピンと来ないのだが。
      */
-    param->origin = cnoid::Vector3(0.25, -0.15, 0.0);
+    // 元のやつ
+    // param->origin = cnoid::Vector3(0.25, -0.15, 0.0);
+    param->origin = cnoid::Vector3(0.20, -0.10, 0.0);
+    
     /*
       originは何？を表しているのか？だが、恐らくマップ領域の原点くさくて、それを設定している。
      */

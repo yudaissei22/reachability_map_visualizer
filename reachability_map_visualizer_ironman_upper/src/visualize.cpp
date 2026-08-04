@@ -9,7 +9,7 @@ namespace reachability_map_visualizer_sample{
   void visualize(){
     std::shared_ptr<choreonoid_viewer::Viewer> viewer = std::make_shared<choreonoid_viewer::Viewer>();
     cnoid::BodyLoader bodyLoader;
-    cnoid::BodyPtr robot = bodyLoader.load(ros::package::getPath("ironman_models") + "/IronMan_for_choreonoid.wrl");
+    cnoid::BodyPtr robot = bodyLoader.load(ros::package::getPath("ironman_models") + "/IronMan_for_choreonoid_ver2.wrl");
     if(!robot) std::cerr << "!robot" << std::endl;
 
     robot->rootLink()->p() = cnoid::Vector3(0,0,0.0);
