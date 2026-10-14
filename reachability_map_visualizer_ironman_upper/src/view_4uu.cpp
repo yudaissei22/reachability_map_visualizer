@@ -16,11 +16,11 @@ namespace reachability_map_visualizer_sample{
       return;
     }
 
-    cnoid::LinkPtr b4Base = robot->joint("B4_BASE");
-    cnoid::LinkPtr b4Uu = robot->joint("B4_UU");
-    cnoid::LinkPtr shoulderPitch = robot->joint("SHOULDER_PITCH");
-    cnoid::LinkPtr b4EndYaw = robot->joint("B4_END_YAW");
-    if(!b4Base || !b4Uu || !shoulderPitch || !b4EndYaw){
+    cnoid::LinkPtr b4Base = robot->joint("B4_BASE"); // z
+    cnoid::LinkPtr b4Uu = robot->joint("B4_UU"); // x
+    cnoid::LinkPtr shoulderFirst = robot->joint("SHOULDER_FIRST"); // z
+    cnoid::LinkPtr b4EndYaw = robot->joint("B4_END_YAW"); // x
+    if(!b4Base || !b4Uu || !shoulderFirst || !b4EndYaw){
       std::cerr << "[view_4uu] failed to find required joints" << std::endl;
       return;
     }
@@ -37,28 +37,28 @@ namespace reachability_map_visualizer_sample{
     viewer->drawObjects();
 
     std::cerr << "[view_4uu] watching 4UU sign with a = -b" << std::endl;
-    std::cerr << "[view_4uu] phase 1: B4_BASE = t, SHOULDER_PITCH = -t" << std::endl;
+    std::cerr << "[view_4uu] phase 1: B4_BASE = t, SHOULDER_FIRST = -t" << std::endl;
     std::cerr << "[view_4uu] phase 2: B4_UU = t, B4_END_YAW = -t" << std::endl;
 
     const double step = 0.01;
     while(true){
       for(double q=0.0; q<=0.25; q+=step){
         b4Base->q() = q;
-        shoulderPitch->q() = -q;
+        shoulderFirst->q() = -q;
         robot->calcForwardKinematics();
         viewer->drawObjects();
         std::this_thread::sleep_for(std::chrono::milliseconds(80));
       }
       for(double q=0.25; q>=-0.15; q-=step){
         b4Base->q() = q;
-        shoulderPitch->q() = -q;
+        shoulderFirst->q() = -q;
         robot->calcForwardKinematics();
         viewer->drawObjects();
         std::this_thread::sleep_for(std::chrono::milliseconds(80));
       }
       for(double q=-0.15; q<=0.0; q+=step){
         b4Base->q() = q;
-        shoulderPitch->q() = -q;
+        shoulderFirst->q() = -q;
         robot->calcForwardKinematics();
         viewer->drawObjects();
         std::this_thread::sleep_for(std::chrono::milliseconds(80));

@@ -6,10 +6,12 @@
 #include <ros/package.h>
 
 namespace reachability_map_visualizer_sample{
-  void visualize(){
+  // void visualize(){
+  std::shared_ptr<choreonoid_viewer::Viewer> visualize() {
     std::shared_ptr<choreonoid_viewer::Viewer> viewer = std::make_shared<choreonoid_viewer::Viewer>();
     cnoid::BodyLoader bodyLoader;
-    cnoid::BodyPtr robot = bodyLoader.load(ros::package::getPath("ironman_models") + "/IronMan_for_choreonoid_ver2.wrl");
+    cnoid::BodyPtr robot = bodyLoader.load(ros::package::getPath("UronMan_models") + "/UronManmain_with_human.wrl");
+    // cnoid::BodyPtr robot = bodyLoader.load(ros::package::getPath("UronMan_models") + "/EasyHumanmain.wrl");
     if(!robot) std::cerr << "!robot" << std::endl;
 
     robot->rootLink()->p() = cnoid::Vector3(0,0,0.0);
@@ -17,7 +19,11 @@ namespace reachability_map_visualizer_sample{
     robot->rootLink()->R() = cnoid::Matrix3::Identity();
     robot->rootLink()->w().setZero();
     std::vector<double> reset_manip_pose{
-      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0,
+
     };
 
     for(int j=0; j < robot->numJoints(); ++j){
@@ -32,6 +38,8 @@ namespace reachability_map_visualizer_sample{
     map->boxSize = cnoid::Vector3(map->posResolution, map->posResolution, 0.001);
     viewer->objects(robot);
     reachability_map_visualizer::visualizeMap(map, viewer);
-    viewer->drawObjects();
+    // viewer->drawObjects();
+    viewer->drawObjects(false);
+    return viewer;
   }
 }

@@ -26,7 +26,8 @@ namespace reachability_map_visualizer_sample{
     
     cnoid::BodyLoader bodyLoader;
     // bodyloaderは、cnoid::BodyLoader型の変数bodyLoaderを作っていて、これは、ロボットモデルを読むためのオブジェクト。
-    param->robot = bodyLoader.load(ros::package::getPath("ironman_models") + "/IronMan_for_choreonoid_ver2.wrl");
+    param->robot = bodyLoader.load(ros::package::getPath("UronMan_models") + "/UronManmain_with_human.wrl");
+    // param->robot = bodyLoader.load(ros::package::getPath("UronMan_models") + "/EasyHumanmain.wrl");
     /*
       param->robotは、paramというオブジェクトがさすrobotメンバ。
       さかのぼって実装を見てみると、cnoid::BodyPtr robot;というものがある。これのことか！
@@ -56,7 +57,8 @@ namespace reachability_map_visualizer_sample{
     std::vector<double> reset_manip_pose{
 					 0.0, 0.0, 0.0, 0.0,
 					 0.0, 0.0, 0.0, 0.0,					 
-					 0.0, 0.0, 0.0, 0.0, 0.0,
+					 0.0, 0.0, 0.0, 0.0,
+					 0.0, 0.0, 0.0, 0.0,  0.0,					 
     };
 
     for(int j=0; j < param->robot->numJoints(); ++j){
@@ -111,7 +113,7 @@ namespace reachability_map_visualizer_sample{
     {
       std::shared_ptr<ik_constraint2::JointAngleConstraint_4UU> constraint = std::make_shared<ik_constraint2::JointAngleConstraint_4UU>();
       constraint->A_joint() = param->robot->joint("B4_BASE");
-      constraint->B_joint() = param->robot->joint("SHOULDER_PITCH");
+      constraint->B_joint() = param->robot->joint("SHOULDER_FIRST");
       constraints.push_back(constraint);
     }
 
@@ -133,11 +135,14 @@ namespace reachability_map_visualizer_sample{
     param->variables.push_back(param->robot->joint("B4_BASE")); // yaw     
     param->variables.push_back(param->robot->joint("B4_UU")); // roll
     param->variables.push_back(param->robot->joint("B4_END_YAW")); // roll
+    param->variables.push_back(param->robot->joint("SHOULDER_FIRST")); // yaw    
     param->variables.push_back(param->robot->joint("SHOULDER_PITCH")); // yaw
     param->variables.push_back(param->robot->joint("SHOULDER_ROLL"));
     param->variables.push_back(param->robot->joint("SHOULDER_YAW"));
     param->variables.push_back(param->robot->joint("ELBOW_PITCH"));
-    param->variables.push_back(param->robot->joint("WRIST_YAW"));
+    param->variables.push_back(param->robot->joint("ELBOW_LOWER"));
+    param->variables.push_back(param->robot->joint("WRIST"));
+    param->variables.push_back(param->robot->joint("HAND"));
 
     /*
       variablesは、動かしてよい変数の一覧のこと。
@@ -149,7 +154,7 @@ namespace reachability_map_visualizer_sample{
       Endeffector型の変数eeを作成。
       手先の情報を表す構造体と考えてよい層。
     */
-    ee.parent = param->robot->link("WRIST_YAW");
+    ee.parent = param->robot->link("HAND");
     /* 
        なんでか、EEの親リンクを設定していて、それがwrist_yawなんだとか。
        Q. この親リンクを設定する必要性ってなんでなんだろうか？
@@ -177,7 +182,7 @@ namespace reachability_map_visualizer_sample{
      */
     // 元のやつ
     // param->origin = cnoid::Vector3(0.25, -0.15, 0.0);
-    param->origin = cnoid::Vector3(0.20, -0.10, 0.0);
+    param->origin = cnoid::Vector3(-0.010, 0.350, 0.0);
     
     /*
       originは何？を表しているのか？だが、恐らくマップ領域の原点くさくて、それを設定している。

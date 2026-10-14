@@ -1,6 +1,10 @@
 #include <cnoid/Plugin>
 #include <cnoid/ItemManager>
 
+#include <cnoid/Item>
+#include <cnoid/LazyCaller>
+#include <memory>
+
 #include <choreonoid_viewer/choreonoid_viewer.h>
 
 namespace reachability_map_visualizer_sample{
@@ -13,14 +17,16 @@ namespace reachability_map_visualizer_sample{
   };
   typedef cnoid::ref_ptr<jaxon_handItem> jaxon_handItemPtr;
 
-  void visualize();
-  class visualizeItem : public choreonoid_viewer::ViewerBaseItem {
-  public:
-    static void initializeClass(cnoid::ExtensionManager* ext){ ext->itemManager().registerClass<visualizeItem>("visualizeItem"); }
-  protected:
-    virtual void main() override{ visualize(); return;}
-  };
-  typedef cnoid::ref_ptr<visualizeItem> visualizeItemPtr;
+
+  // --- viewerのためにtest
+  // void visualize();
+  // class visualizeItem : public choreonoid_viewer::ViewerBaseItem {
+  // public:
+  //   static void initializeClass(cnoid::ExtensionManager* ext){ ext->itemManager().registerClass<visualizeItem>("visualizeItem"); }
+  // protected:
+  //   virtual void main() override{ visualize(); return;}
+  // };
+  // typedef cnoid::ref_ptr<visualizeItem> visualizeItemPtr;
 
   void view_4uu();
   class view4UUItem : public choreonoid_viewer::ViewerBaseItem {
@@ -30,6 +36,43 @@ namespace reachability_map_visualizer_sample{
     virtual void main() override{ view_4uu(); return;}
   };
   typedef cnoid::ref_ptr<view4UUItem> view4UUItemPtr;
+  
+  // --- viewerのためにtest
+
+  std::shared_ptr<choreonoid_viewer::Viewer> visualize();
+  class visualizeItem : public cnoid::Item {
+  public:
+    visualizeItem()
+      : showLater_([this](){
+		     if (findRootItem() && !viewer_){
+		       viewer_ = visualize();		       
+		     }
+		   }, cnoid::LazyCaller::NormalPriority)
+      {
+      }
+
+    static void initializeClass(cnoid::ExtensionManager* ext){
+      ext->itemManager().registerClass<visualizeItem>("visualizeItem");
+    }
+
+  protected:
+    void onConnectedToRoot() override {
+      showLater_();
+    }
+
+    void onDisconnectedFromRoot() override {
+      showLater_.cancel();
+      viewer_.reset();
+    }
+    
+  private:
+    std::shared_ptr<choreonoid_viewer::Viewer> viewer_;
+    cnoid::LazyCaller showLater_;
+		   
+  };
+  typedef cnoid::ref_ptr<visualizeItem> visualizeItemPtr;
+
+  //  ---
 
   void solvability_bar();
   class solvability_barItem : public choreonoid_viewer::ViewerBaseItem {

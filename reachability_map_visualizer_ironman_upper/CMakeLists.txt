@@ -9,7 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   reachability_map_visualizer
   choreonoid_viewer
   roslib
-  ironman_models
+  UronMan_models
   )
 
 find_package(choreonoid REQUIRED)
