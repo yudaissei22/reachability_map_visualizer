@@ -10,6 +10,90 @@ items:
       name: "ReachabilityMapVisualizerSamplePlugin"
       plugin: ReachabilityMapVisualizerSamplePlugin
       class: visualizeItem
+    -
+      id: 2
+      name: "World"
+      plugin: Body
+      class: WorldItem
+      data:
+        collision_detection: false
+        collision_detector: AISTCollisionDetector
+        default_material_table_file: "${SHARE}/default/materials.yaml"
+      children:
+        -
+          id: 3
+          name: "DoNotingSimulatorItem"
+          plugin: Viewer
+          class: DoNotingSimulatorItem
+          data:
+            time_step: 0.001
+            realtime_sync_mode: off
+            recording: full
+            time_range_mode: unlimited
+            time_length: 180
+            is_active_control_time_range_mode: false
+            output_all_link_positions: true
+            output_device_states: true
+            use_controller_threads: true
+            record_collision_data: false
+            controller_options: ""
+            block_scene_view_edit_mode: false
+        -
+          id: 4
+          name: "URONMAN"
+          plugin: Body
+          class: BodyItem
+          is_checked: true
+          data:
+            rootPosition: [ 0, 0, 0 ]
+            rootAttitude: [
+              1, 0, 0,
+              0, 1, 0,
+              0, 0, 1 ]
+            jointDisplacements: [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0 ]
+            jointPositions: [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0 ]
+            initialRootPosition: [ 0, 0, 0 ]
+            initialRootAttitude: [
+              1, 0, 0,
+              0, 1, 0,
+              0, 0, 1 ]
+            initialJointPositions: [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0 ]
+            fix_root: true
+            collisionDetection: true
+            selfCollisionDetection: false
+            lock_location: false
+            scene_sensitive: true
+            zmp: [ 0, 0, 0 ]
+        -
+          id: 5
+          name: ""
+          plugin: Body
+          class: BodyItem
+          is_checked: true
+          data:
+            rootPosition: [ 0, 0, 0 ]
+            rootAttitude: [
+              1, 0, 0,
+              0, 1, 0,
+              0, 0, 1 ]
+            jointPositions: [ ]
+            initialRootPosition: [ 0, 0, 0 ]
+            initialRootAttitude: [
+              1, 0, 0,
+              0, 1, 0,
+              0, 0, 1 ]
+            fix_root: true
+            collisionDetection: true
+            selfCollisionDetection: false
+            lock_location: false
+            scene_sensitive: true
+            zmp: [ 0, 0, 0 ]
 views:
   -
     id: 0
@@ -50,9 +134,9 @@ views:
         -
           camera: [ System, Perspective ]
           isCurrent: true
-          eye: [ 2.96078, 3.97664, 0.648171 ]
-          direction: [ -0.592156, -0.795328, -0.129634 ]
-          up: [ -0.0774168, -0.103979, 0.991562 ]
+          eye: [ 0.975979, 1.92325, 0.73391 ]
+          direction: [ -0.50504, -0.787933, -0.352274 ]
+          up: [ -0.190098, -0.29658, 0.935897 ]
         -
           camera: [ System, Orthographic ]
           orthoHeight: 20
@@ -159,7 +243,18 @@ Body:
     targetJoints: all
     checkSelfCollisions: true
     onlyTimeBarRange: false
-  "OperableSceneBody": { }
+  "OperableSceneBody":
+    scene_bodies:
+      -
+        body_item: 4
+        show_cm: false
+        show_cm_projection: false
+        show_zmp: false
+      -
+        body_item: 5
+        show_cm: false
+        show_cm_projection: false
+        show_zmp: false
   "SplineFilterDialog":
     isInputFrameRateSpecified: false
     inputFrameRate: 200
