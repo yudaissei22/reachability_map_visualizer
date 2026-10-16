@@ -5,7 +5,7 @@
 #include <ros/package.h>
 #include <thread>
 
-namespace reachability_map_visualizer_sample{
+namespace reachability_map_visualizer_easy_human_upper{
   void view_4uu(){
     std::shared_ptr<choreonoid_viewer::Viewer> viewer = std::make_shared<choreonoid_viewer::Viewer>();
 

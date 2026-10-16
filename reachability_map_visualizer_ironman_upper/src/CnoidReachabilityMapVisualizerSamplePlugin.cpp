@@ -7,13 +7,13 @@
 
 #include <choreonoid_viewer/choreonoid_viewer.h>
 
-namespace reachability_map_visualizer_sample{
-  void jaxon_hand();
+namespace reachability_map_visualizer_ironman_upper{
+  void UronMan();
   class jaxon_handItem : public choreonoid_viewer::ViewerBaseItem {
   public:
     static void initializeClass(cnoid::ExtensionManager* ext){ ext->itemManager().registerClass<jaxon_handItem>("jaxon_handItem"); }
   protected:
-    virtual void main() override{ jaxon_hand(); return;}
+    virtual void main() override{ UronMan(); return;}
   };
   typedef cnoid::ref_ptr<jaxon_handItem> jaxon_handItemPtr;
 
@@ -83,10 +83,10 @@ namespace reachability_map_visualizer_sample{
   };
   typedef cnoid::ref_ptr<solvability_barItem> solvability_barItemPtr;
 
-  class ReachabilityMapVisualizerSamplePlugin : public cnoid::Plugin
+  class IronmanReachabilityPlugin : public cnoid::Plugin
   {
   public:
-    ReachabilityMapVisualizerSamplePlugin() : Plugin("ReachabilityMapVisualizerSamplePlugin")
+    IronmanReachabilityPlugin() : Plugin("IronmanReachability")
     {
       require("Body");
     }
@@ -101,4 +101,4 @@ namespace reachability_map_visualizer_sample{
   };
 }
 
-CNOID_IMPLEMENT_PLUGIN_ENTRY(reachability_map_visualizer_sample::ReachabilityMapVisualizerSamplePlugin)
+CNOID_IMPLEMENT_PLUGIN_ENTRY(reachability_map_visualizer_ironman_upper::IronmanReachabilityPlugin)

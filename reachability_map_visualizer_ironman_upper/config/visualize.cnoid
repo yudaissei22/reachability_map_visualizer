@@ -7,8 +7,8 @@ items:
   children:
     -
       id: 1
-      name: "ReachabilityMapVisualizerSamplePlugin"
-      plugin: ReachabilityMapVisualizerSamplePlugin
+      name: "IronmanReachability"
+      plugin: IronmanReachability
       class: visualizeItem
     -
       id: 2
@@ -16,7 +16,7 @@ items:
       plugin: Body
       class: WorldItem
       data:
-        collision_detection: false
+        collision_detection: true 	
         collision_detector: AISTCollisionDetector
         default_material_table_file: "${SHARE}/default/materials.yaml"
       children:

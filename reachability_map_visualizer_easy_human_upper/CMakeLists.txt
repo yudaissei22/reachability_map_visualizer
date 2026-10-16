@@ -1,3 +1,5 @@
+# Cmakeの出力名、c++の登録名と名前空間、.cnoidの参照先を揃える
+
 cmake_minimum_required(VERSION 3.0.2)
 project(reachability_map_visualizer_easy_human_upper)
 
@@ -10,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   choreonoid_viewer
   roslib
   UronMan_models
+  ik_constraint2_bullet  
   )
 
 find_package(choreonoid REQUIRED)
@@ -29,19 +32,20 @@ include_directories(
  ${CHOREONOID_INCLUDE_DIRS}
 )
 
-add_library(CnoidReachabilityMapVisualizerSamplePlugin SHARED
+add_library(CnoidEasyHumanReachabilityPlugin SHARED  
   src/CnoidReachabilityMapVisualizerSamplePlugin.cpp
-  # src/jaxon_hand.cpp
   src/easy_human_upper.cpp
   src/visualize.cpp
   src/view_4uu.cpp
   src/solvability_bar.cpp
   )
-target_link_libraries(CnoidReachabilityMapVisualizerSamplePlugin
+
+target_link_libraries(CnoidEasyHumanReachabilityPlugin
   ${catkin_LIBRARIES}
   ${CHOREONOID_BODY_PLUGIN_LIBRARIES}
   )
-set_target_properties(CnoidReachabilityMapVisualizerSamplePlugin PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CHOREONOID_PLUGIN_DIR})
+
+set_target_properties(CnoidEasyHumanReachabilityPlugin PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CHOREONOID_PLUGIN_DIR})
 
 add_executable(view_4uu
   src/view_4uu_main.cpp

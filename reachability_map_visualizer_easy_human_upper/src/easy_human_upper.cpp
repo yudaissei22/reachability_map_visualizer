@@ -4,11 +4,17 @@
 #include <cnoid/BodyLoader>
 #include <iostream>
 #include <ros/package.h> /* rosのpackageのpathを取得する方法です。 */
+#include <ik_constraint2_bullet/BulletCollisionConstraint.h>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 
 // ここにik_constraint2をつかって、関節角度の拘束を追加していく。
-namespace reachability_map_visualizer_sample{
+namespace reachability_map_visualizer_easy_human_upper{
   /* namespaceは関数名の名前の衝突を防ぐもの */
-  // この中に書いたものは、reachability_map_visualizer_sample::という名前空間に属しています。
+  // この中に書いたものは、reachability_map_visualizer_easy_human_upper::という名前空間に属しています。
   void easy_human_upper(){
     // voidなので、戻り値が無し。
     // jaxon_handは当然関数名です。
@@ -26,7 +32,6 @@ namespace reachability_map_visualizer_sample{
     
     cnoid::BodyLoader bodyLoader;
     // bodyloaderは、cnoid::BodyLoader型の変数bodyLoaderを作っていて、これは、ロボットモデルを読むためのオブジェクト。
-    // param->robot = bodyLoader.load(ros::package::getPath("UronMan_models") + "/UronManmain_with_human.wrl");
     param->robot = bodyLoader.load(ros::package::getPath("UronMan_models") + "/EasyHumanmain.wrl");
     /*
       param->robotは、paramというオブジェクトがさすrobotメンバ。
@@ -57,7 +62,7 @@ namespace reachability_map_visualizer_sample{
     std::vector<double> reset_manip_pose{
 					 0.0, 0.0, 0.0, 0.0,
 					 0.0, 0.0, 0.0, 0.0,					 
-					 0.0, 0.0, 0.0,
+					 0.0, 0.0,
     };
 
     for(int j=0; j < param->robot->numJoints(); ++j){
@@ -102,6 +107,8 @@ namespace reachability_map_visualizer_sample{
        */
     }
 
+    
+
     /* ここにシンプルに追加したらいいんでないのかな？ 分からないので検証とかします。
        これはUniversal jointのパラレルリンクによる関節角度拘束を表すものです。
      */
@@ -122,9 +129,113 @@ namespace reachability_map_visualizer_sample{
       constraint->B_joint() = param->robot->joint("U2_CORE");
       constraints.push_back(constraint);
     }
-      
-    /* ik変数を登録? */
+
+    /* ikのを登録 */
     param->constraints.push_back(constraints);
+
+    
+      
+    /* collisionの制約 */
+    // 直接の親子関係にあるリンクは対象から除外する。
+    const std::vector<std::pair<std::string, std::string>> collisionPairs = {
+      // // U1_CORE：8ペア
+      // {"U1_CORE", "U2_CORE"},
+      // {"U1_CORE", "SHOULDER_ROLL"},
+      // {"U1_CORE", "SHOULDER_PITCH"},
+      // {"U1_CORE", "SHOULDER_TO_ELBOW"},
+      // {"U1_CORE", "ELBOW_UPPER"},
+      // {"U1_CORE", "ELBOW_LOWER"},
+      // {"U1_CORE", "WRIST"},
+      // {"U1_CORE", "HAND"},
+
+      // // UU：7ペア
+      // {"UU", "SHOULDER_ROLL"},
+      // {"UU", "SHOULDER_PITCH"},
+      // {"UU", "SHOULDER_TO_ELBOW"},
+      // {"UU", "ELBOW_UPPER"},
+      // {"UU", "ELBOW_LOWER"},
+      // {"UU", "WRIST"},
+      // {"UU", "HAND"},
+
+      // // U2_CORE：6ペア
+      // {"U2_CORE", "SHOULDER_PITCH"},
+      // {"U2_CORE", "SHOULDER_TO_ELBOW"},
+      // {"U2_CORE", "ELBOW_UPPER"},
+      // {"U2_CORE", "ELBOW_LOWER"},
+      // {"U2_CORE", "WRIST"},
+      // {"U2_CORE", "HAND"},
+
+      // SHOULDER_ROLL：5ペア
+      {"SHOULDER_ROLL", "SHOULDER_TO_ELBOW"},
+      {"SHOULDER_ROLL", "ELBOW_UPPER"},
+      {"SHOULDER_ROLL", "ELBOW_LOWER"},
+      {"SHOULDER_ROLL", "WRIST"},
+      {"SHOULDER_ROLL", "HAND"},
+
+      // SHOULDER_PITCH：4ペア
+      {"SHOULDER_PITCH", "ELBOW_UPPER"},
+      {"SHOULDER_PITCH", "ELBOW_LOWER"},
+      {"SHOULDER_PITCH", "WRIST"},
+      {"SHOULDER_PITCH", "HAND"},
+
+      // SHOULDER_TO_ELBOW：3ペア
+      {"SHOULDER_TO_ELBOW", "ELBOW_LOWER"},
+      {"SHOULDER_TO_ELBOW", "WRIST"},
+      {"SHOULDER_TO_ELBOW", "HAND"},
+
+      // ELBOW_UPPER：2ペア
+      {"ELBOW_UPPER", "WRIST"},
+      {"ELBOW_UPPER", "HAND"},
+    };
+
+    for (const auto& pair : collisionPairs) {
+      cnoid::LinkPtr linkA = param->robot->link(pair.first);
+      cnoid::LinkPtr linkB = param->robot->link(pair.second);      
+
+    // リンク名の間違いを
+    if (!linkA || !linkB){
+      std::cerr << "Collision link not found: "
+		<< pair.first <<  " / " << pair.second << std::endl;
+      return;
+    }
+
+    // 衝突用形状が登録されることを確認
+    if (!linkA->collisionShape() || !linkB->collisionShape()){
+        std::cerr << "Collision shape missing: "
+                  << pair.first << " / " << pair.second << std::endl;
+        return;      
+    }
+
+    auto collision =
+      std::make_shared<ik_constraint2_bullet::BulletCollisionConstraint>();
+
+    collision->A_link() = linkA;
+    collision->B_link() = linkB;
+
+    // 距離の単位は m。
+    collision->tolerance() = 0.005;     // 要求する離隔距離：5 mm
+    collision->precision() = 0.0001;    // 判定の許容誤差：0.1 mm
+    collision->ignoreDistance() = 0.10; // 10 cm以上離れたら制約を外す
+
+    // 各リンク全体を1つの凸包として近似する。
+    collision->useSingleMesh() = true;
+
+    // 並列計算に入る前に衝突用モデルを生成・キャッシュする。
+    // この時点では、既存処理で順運動学が計算されている。
+    collision->updateBounds();
+
+    if (collision->A_bulletModel().empty() ||
+        collision->B_bulletModel().empty()) {
+        std::cerr << "Failed to create collision model: "
+                  << pair.first << " / " << pair.second << std::endl;
+        return;
+    }
+    constraints.push_back(collision);
+  }
+
+    // 関節制約と衝突制約をまとめて登録する。
+    param->constraints.push_back(constraints);
+
     /*
       これは、param->constraintsに、今作った制約群を追加していうｒ。
       constrainsは、制約のセットみたいな扱いですねぇ。
@@ -136,6 +247,7 @@ namespace reachability_map_visualizer_sample{
     param->variables.push_back(param->robot->joint("U2_CORE")); // roll
     param->variables.push_back(param->robot->joint("SHOULDER_ROLL")); // yaw    
     param->variables.push_back(param->robot->joint("SHOULDER_PITCH")); // yaw
+    
     param->variables.push_back(param->robot->joint("SHOULDER_TO_ELBOW"));
     param->variables.push_back(param->robot->joint("ELBOW_UPPER"));
     param->variables.push_back(param->robot->joint("ELBOW_LOWER"));
@@ -143,7 +255,7 @@ namespace reachability_map_visualizer_sample{
     param->variables.push_back(param->robot->joint("HAND"));
 
     /*
-      variablesは、動かしてよい変数の一覧のこと。
+      variablesは、動かしてよい変数の一覧のこと。n
       ここでは、名前で関数を取得していますが。。。名前は何を参照しているのかな？
       Q[恐らく、cnoid::BodyPtr robot;としてrobotが定義されているので、cnoidの方でwrlから読み取るという何かしらの処理が行われているのかな？]
      */
@@ -206,7 +318,7 @@ namespace reachability_map_visualizer_sample{
      みたけど、src/hoge.cppにあって、for分を回してしっかり計算してくれていそうだった。
      */
 
-    reachability_map_visualizer::writeMap(ros::package::getPath("reachability_map_visualizer_ironman_upper") + "/config/easy_human_upper.yaml",map);
+    reachability_map_visualizer::writeMap(ros::package::getPath("reachability_map_visualizer_easy_human_upper") + "/config/easy_human_upper.yaml",map);
     /*
       これはmapを書いて、yamlファイルに書き出す、みたら分かりそうですね。
      */

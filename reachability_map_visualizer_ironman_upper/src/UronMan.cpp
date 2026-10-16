@@ -4,12 +4,17 @@
 #include <cnoid/BodyLoader>
 #include <iostream>
 #include <ros/package.h> /* rosのpackageのpathを取得する方法です。 */
+#include <ik_constraint2_bullet/BulletCollisionConstraint.h>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 // ここにik_constraint2をつかって、関節角度の拘束を追加していく。
-namespace reachability_map_visualizer_sample{
+namespace reachability_map_visualizer_ironman_upper{
   /* namespaceは関数名の名前の衝突を防ぐもの */
-  // この中に書いたものは、reachability_map_visualizer_sample::という名前空間に属しています。
-  void jaxon_hand(){
+  // この中に書いたものは、reachability_map_visualizer_ironman_upper::という名前空間に属しています。
+  void UronMan(){
     // voidなので、戻り値が無し。
     // jaxon_handは当然関数名です。
     std::shared_ptr<choreonoid_viewer::Viewer> viewer = std::make_shared<choreonoid_viewer::Viewer>();
@@ -126,6 +131,135 @@ namespace reachability_map_visualizer_sample{
       
     /* ik変数を登録? */
     param->constraints.push_back(constraints);
+
+    /* collisionの制約を追加 */
+    const std::vector<std::pair<std::string, std::string>> collisionPairs = {
+									     // B4_BASE：10ペア
+									     {"B4_BASE", "B4_UU"},
+									     {"B4_BASE", "B4_END_YAW"},
+    {"B4_BASE", "SHOULDER_FIRST"},
+    {"B4_BASE", "SHOULDER_PITCH"},
+    {"B4_BASE", "SHOULDER_ROLL"},
+    {"B4_BASE", "SHOULDER_YAW"},
+    {"B4_BASE", "ELBOW_PITCH"},
+    {"B4_BASE", "ELBOW_LOWER"},
+    {"B4_BASE", "WRIST"},
+    {"B4_BASE", "HAND"},
+
+    // B4_UU：9ペア
+    {"B4_UU", "B4_END_YAW"},
+    {"B4_UU", "SHOULDER_FIRST"},
+    {"B4_UU", "SHOULDER_PITCH"},
+    {"B4_UU", "SHOULDER_ROLL"},
+    {"B4_UU", "SHOULDER_YAW"},
+    {"B4_UU", "ELBOW_PITCH"},
+    {"B4_UU", "ELBOW_LOWER"},
+    {"B4_UU", "WRIST"},
+    {"B4_UU", "HAND"},
+
+    // B4_END_YAW：8ペア
+    {"B4_END_YAW", "SHOULDER_FIRST"},
+    {"B4_END_YAW", "SHOULDER_PITCH"},
+    {"B4_END_YAW", "SHOULDER_ROLL"},
+    {"B4_END_YAW", "SHOULDER_YAW"},
+    {"B4_END_YAW", "ELBOW_PITCH"},
+    {"B4_END_YAW", "ELBOW_LOWER"},
+    {"B4_END_YAW", "WRIST"},
+    {"B4_END_YAW", "HAND"},
+
+									         // SHOULDER_FIRST：7ペア
+    {"SHOULDER_FIRST", "SHOULDER_PITCH"},
+    {"SHOULDER_FIRST", "SHOULDER_ROLL"},
+    {"SHOULDER_FIRST", "SHOULDER_YAW"},
+    {"SHOULDER_FIRST", "ELBOW_PITCH"},
+    {"SHOULDER_FIRST", "ELBOW_LOWER"},
+    {"SHOULDER_FIRST", "WRIST"},
+    {"SHOULDER_FIRST", "HAND"},
+
+    // SHOULDER_PITCH：6ペア
+    {"SHOULDER_PITCH", "SHOULDER_ROLL"},
+    {"SHOULDER_PITCH", "SHOULDER_YAW"},
+    {"SHOULDER_PITCH", "ELBOW_PITCH"},
+    {"SHOULDER_PITCH", "ELBOW_LOWER"},
+    {"SHOULDER_PITCH", "WRIST"},
+    {"SHOULDER_PITCH", "HAND"},
+
+    // SHOULDER_ROLL：5ペア
+    {"SHOULDER_ROLL", "SHOULDER_YAW"},
+    {"SHOULDER_ROLL", "ELBOW_PITCH"},
+    {"SHOULDER_ROLL", "ELBOW_LOWER"},
+    {"SHOULDER_ROLL", "WRIST"},
+    {"SHOULDER_ROLL", "HAND"},
+
+    // SHOULDER_YAW：4ペア
+    {"SHOULDER_YAW", "ELBOW_PITCH"},
+    {"SHOULDER_YAW", "ELBOW_LOWER"},
+    {"SHOULDER_YAW", "WRIST"},
+    {"SHOULDER_YAW", "HAND"},
+
+    // ELBOW_PITCH：3ペア
+    {"ELBOW_PITCH", "ELBOW_LOWER"},
+    {"ELBOW_PITCH", "WRIST"},
+    {"ELBOW_PITCH", "HAND"},
+
+    // ELBOW_LOWER：2ペア
+    {"ELBOW_LOWER", "WRIST"},
+    {"ELBOW_LOWER", "HAND"},
+
+    // WRIST：1ペア
+    {"WRIST", "HAND"},
+
+    // 既存のROOTとの3ペア
+    {"HAND", "ROOT"},
+    {"WRIST", "ROOT"},
+    {"ELBOW_PITCH", "ROOT"}
+    };
+
+    for (const auto& pair : collisionPairs) {
+      cnoid::LinkPtr linkA = param->robot->link(pair.first);
+      cnoid::LinkPtr linkB = param->robot->link(pair.second);      
+
+    // リンク名の間違いを
+    if (!linkA || !linkB){
+      std::cerr << "Collision link not found: "
+		<< pair.first <<  " / " << pair.second << std::endl;
+      return;
+    }
+
+    // 衝突用形状が登録されることを確認
+    if (!linkA->collisionShape() || !linkB->collisionShape()){
+        std::cerr << "Collision shape missing: "
+                  << pair.first << " / " << pair.second << std::endl;
+        return;      
+    }
+
+    auto collision =
+      std::make_shared<ik_constraint2_bullet::BulletCollisionConstraint>();
+
+    collision->A_link() = linkA;
+    collision->B_link() = linkB;
+
+    // 距離の単位は m。
+    collision->tolerance() = 0.005;     // 要求する離隔距離：5 mm
+    collision->precision() = 0.0001;    // 判定の許容誤差：0.1 mm
+    collision->ignoreDistance() = 0.10; // 10 cm以上離れたら制約を外す
+
+    // 各リンク全体を1つの凸包として近似する。
+    collision->useSingleMesh() = true;
+
+    // 並列計算に入る前に衝突用モデルを生成・キャッシュする。
+    // この時点では、既存処理で順運動学が計算されている。
+    collision->updateBounds();
+
+    if (collision->A_bulletModel().empty() ||
+        collision->B_bulletModel().empty()) {
+        std::cerr << "Failed to create collision model: "
+                  << pair.first << " / " << pair.second << std::endl;
+        return;
+    }
+    constraints.push_back(collision);
+  }
+    
     /*
       これは、param->constraintsに、今作った制約群を追加していうｒ。
       constrainsは、制約のセットみたいな扱いですねぇ。

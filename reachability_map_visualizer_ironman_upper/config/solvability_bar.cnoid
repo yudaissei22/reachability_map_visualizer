@@ -6,8 +6,8 @@ items:
   children:
     -
       id: 1
-      name: "ReachabilityMapVisualizerSamplePlugin"
-      plugin: ReachabilityMapVisualizerSamplePlugin
+      name: "IronmanReachability"
+      plugin: IronmanReachability
       class: solvability_barItem
 views:
   -

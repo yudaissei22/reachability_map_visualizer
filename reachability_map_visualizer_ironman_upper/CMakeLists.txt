@@ -6,10 +6,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_BUILD_TYPE Release)
 
 find_package(catkin REQUIRED COMPONENTS
-  reachability_map_visualizer
+  reachability_map_visualizer  
   choreonoid_viewer
   roslib
   UronMan_models
+  ik_constraint2_bullet
   )
 
 find_package(choreonoid REQUIRED)
@@ -29,18 +30,18 @@ include_directories(
  ${CHOREONOID_INCLUDE_DIRS}
 )
 
-add_library(CnoidReachabilityMapVisualizerSamplePlugin SHARED
+add_library(CnoidIronmanReachabilityPlugin SHARED
   src/CnoidReachabilityMapVisualizerSamplePlugin.cpp
-  src/jaxon_hand.cpp
+  src/UronMan.cpp
   src/visualize.cpp
   src/view_4uu.cpp
   src/solvability_bar.cpp
   )
-target_link_libraries(CnoidReachabilityMapVisualizerSamplePlugin
+target_link_libraries(CnoidIronmanReachabilityPlugin
   ${catkin_LIBRARIES}
   ${CHOREONOID_BODY_PLUGIN_LIBRARIES}
   )
-set_target_properties(CnoidReachabilityMapVisualizerSamplePlugin PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CHOREONOID_PLUGIN_DIR})
+set_target_properties(CnoidIronmanReachabilityPlugin PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CHOREONOID_PLUGIN_DIR})
 
 add_executable(view_4uu
   src/view_4uu_main.cpp

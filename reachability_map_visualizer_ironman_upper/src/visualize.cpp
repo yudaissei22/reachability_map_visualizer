@@ -5,7 +5,7 @@
 #include <iostream>
 #include <ros/package.h>
 
-namespace reachability_map_visualizer_sample{
+namespace reachability_map_visualizer_ironman_upper{
   // void visualize(){
   std::shared_ptr<choreonoid_viewer::Viewer> visualize() {
     std::shared_ptr<choreonoid_viewer::Viewer> viewer = std::make_shared<choreonoid_viewer::Viewer>();
