@@ -10,7 +10,7 @@ namespace reachability_map_visualizer_easy_human_upper{
   std::shared_ptr<choreonoid_viewer::Viewer> visualize() {
     std::shared_ptr<choreonoid_viewer::Viewer> viewer = std::make_shared<choreonoid_viewer::Viewer>();
     cnoid::BodyLoader bodyLoader;
-    cnoid::BodyPtr robot = bodyLoader.load(ros::package::getPath("UronMan_models") + "/EasyHumanmain.wrl");
+    cnoid::BodyPtr robot = bodyLoader.load(ros::package::getPath("UronMan_models") + "/EasyHuman_Cylinder.wrl");
     if(!robot) std::cerr << "!robot" << std::endl;
 
     robot->rootLink()->p() = cnoid::Vector3(0,0,0.0);

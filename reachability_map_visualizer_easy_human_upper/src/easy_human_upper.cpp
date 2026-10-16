@@ -32,7 +32,7 @@ namespace reachability_map_visualizer_easy_human_upper{
     
     cnoid::BodyLoader bodyLoader;
     // bodyloaderは、cnoid::BodyLoader型の変数bodyLoaderを作っていて、これは、ロボットモデルを読むためのオブジェクト。
-    param->robot = bodyLoader.load(ros::package::getPath("UronMan_models") + "/EasyHumanmain.wrl");
+    param->robot = bodyLoader.load(ros::package::getPath("UronMan_models") + "/EasyHuman_Cylinder.wrl");
     /*
       param->robotは、paramというオブジェクトがさすrobotメンバ。
       さかのぼって実装を見てみると、cnoid::BodyPtr robot;というものがある。これのことか！
@@ -119,7 +119,7 @@ namespace reachability_map_visualizer_easy_human_upper{
     {
       std::shared_ptr<ik_constraint2::JointAngleConstraint_4UU> constraint = std::make_shared<ik_constraint2::JointAngleConstraint_4UU>();
       constraint->A_joint() = param->robot->joint("U1_CORE");
-      constraint->B_joint() = param->robot->joint("SHOULDER_ROLL");
+      constraint->B_joint() = param->robot->joint("SHOULDER_FIRST");
       constraints.push_back(constraint);
     }
 
@@ -138,54 +138,78 @@ namespace reachability_map_visualizer_easy_human_upper{
     /* collisionの制約 */
     // 直接の親子関係にあるリンクは対象から除外する。
     const std::vector<std::pair<std::string, std::string>> collisionPairs = {
-      // // U1_CORE：8ペア
-      // {"U1_CORE", "U2_CORE"},
-      // {"U1_CORE", "SHOULDER_ROLL"},
-      // {"U1_CORE", "SHOULDER_PITCH"},
-      // {"U1_CORE", "SHOULDER_TO_ELBOW"},
-      // {"U1_CORE", "ELBOW_UPPER"},
-      // {"U1_CORE", "ELBOW_LOWER"},
-      // {"U1_CORE", "WRIST"},
-      // {"U1_CORE", "HAND"},
+									     
+    {"ROOT", "U2_CORE"},
+    {"ROOT", "SHOULDER_FIRST"},
+    // {"ROOT", "SHOULDER_PITCH"},
+    {"ROOT", "SHOULDER_ROLL"},
+    {"ROOT", "SHOULDER_TO_ELBOW"},
+    {"ROOT", "ELBOW_UPPER"},
+    {"ROOT", "ELBOW_LOWER"},
+    {"ROOT", "WRIST"},
+    {"ROOT", "HAND"},
 
-      // // UU：7ペア
-      // {"UU", "SHOULDER_ROLL"},
-      // {"UU", "SHOULDER_PITCH"},
-      // {"UU", "SHOULDER_TO_ELBOW"},
-      // {"UU", "ELBOW_UPPER"},
-      // {"UU", "ELBOW_LOWER"},
-      // {"UU", "WRIST"},
-      // {"UU", "HAND"},
+    // U1_CORE
+    {"U1_CORE", "U2_CORE"},
+    {"U1_CORE", "SHOULDER_FIRST"},
+    // {"U1_CORE", "SHOULDER_PITCH"},
+    {"U1_CORE", "SHOULDER_ROLL"},
+    {"U1_CORE", "SHOULDER_TO_ELBOW"},
+    {"U1_CORE", "ELBOW_UPPER"},
+    {"U1_CORE", "ELBOW_LOWER"},
+    {"U1_CORE", "WRIST"},
+    {"U1_CORE", "HAND"},
 
-      // // U2_CORE：6ペア
-      // {"U2_CORE", "SHOULDER_PITCH"},
-      // {"U2_CORE", "SHOULDER_TO_ELBOW"},
-      // {"U2_CORE", "ELBOW_UPPER"},
-      // {"U2_CORE", "ELBOW_LOWER"},
-      // {"U2_CORE", "WRIST"},
-      // {"U2_CORE", "HAND"},
+    // UU
+    // {"UU", "SHOULDER_PITCH"},
+    {"UU", "SHOULDER_ROLL"},
+    {"UU", "SHOULDER_TO_ELBOW"},
+    {"UU", "ELBOW_UPPER"},
+    {"UU", "ELBOW_LOWER"},
+    {"UU", "WRIST"},
+    {"UU", "HAND"},
 
-      // SHOULDER_ROLL：5ペア
-      {"SHOULDER_ROLL", "SHOULDER_TO_ELBOW"},
-      {"SHOULDER_ROLL", "ELBOW_UPPER"},
-      {"SHOULDER_ROLL", "ELBOW_LOWER"},
-      {"SHOULDER_ROLL", "WRIST"},
-      {"SHOULDER_ROLL", "HAND"},
+    // U2_CORE
+    // {"U2_CORE", "SHOULDER_PITCH"},
+    {"U2_CORE", "SHOULDER_ROLL"},
+    {"U2_CORE", "SHOULDER_TO_ELBOW"},
+    {"U2_CORE", "ELBOW_UPPER"},
+    {"U2_CORE", "ELBOW_LOWER"},
+    {"U2_CORE", "WRIST"},
+    {"U2_CORE", "HAND"},
 
-      // SHOULDER_PITCH：4ペア
-      {"SHOULDER_PITCH", "ELBOW_UPPER"},
-      {"SHOULDER_PITCH", "ELBOW_LOWER"},
-      {"SHOULDER_PITCH", "WRIST"},
-      {"SHOULDER_PITCH", "HAND"},
+    // SHOULDER_FIRST
+    {"SHOULDER_FIRST", "SHOULDER_TO_ELBOW"},
+    {"SHOULDER_FIRST", "ELBOW_UPPER"},
+    {"SHOULDER_FIRST", "ELBOW_LOWER"},
+    {"SHOULDER_FIRST", "WRIST"},
+    {"SHOULDER_FIRST", "HAND"},
 
-      // SHOULDER_TO_ELBOW：3ペア
-      {"SHOULDER_TO_ELBOW", "ELBOW_LOWER"},
-      {"SHOULDER_TO_ELBOW", "WRIST"},
-      {"SHOULDER_TO_ELBOW", "HAND"},
+    // SHOULDER_PITCH（形状なし）
+    // {"SHOULDER_PITCH", "SHOULDER_TO_ELBOW"},
+    // {"SHOULDER_PITCH", "ELBOW_UPPER"},
+    // {"SHOULDER_PITCH", "ELBOW_LOWER"},
+    // {"SHOULDER_PITCH", "WRIST"},
+    // {"SHOULDER_PITCH", "HAND"},
 
-      // ELBOW_UPPER：2ペア
-      {"ELBOW_UPPER", "WRIST"},
-      {"ELBOW_UPPER", "HAND"},
+    // SHOULDER_ROLL
+
+    {"SHOULDER_ROLL", "ELBOW_LOWER"},
+    {"SHOULDER_ROLL", "WRIST"},
+    {"SHOULDER_ROLL", "HAND"},
+
+    // SHOULDER_TO_ELBOW
+    {"SHOULDER_TO_ELBOW", "ELBOW_LOWER"},
+    {"SHOULDER_TO_ELBOW", "WRIST"},
+    {"SHOULDER_TO_ELBOW", "HAND"},
+
+    // ELBOW_UPPER
+    {"ELBOW_UPPER", "WRIST"},
+    {"ELBOW_UPPER", "HAND"},
+
+    // ELBOW_LOWER
+
+									     
     };
 
     for (const auto& pair : collisionPairs) {
@@ -245,9 +269,9 @@ namespace reachability_map_visualizer_easy_human_upper{
     param->variables.push_back(param->robot->joint("U1_CORE")); // yaw     
     param->variables.push_back(param->robot->joint("UU")); // roll
     param->variables.push_back(param->robot->joint("U2_CORE")); // roll
+    param->variables.push_back(param->robot->joint("SHOULDER_FIRST")); // yaw        
     param->variables.push_back(param->robot->joint("SHOULDER_ROLL")); // yaw    
-    param->variables.push_back(param->robot->joint("SHOULDER_PITCH")); // yaw
-    
+    param->variables.push_back(param->robot->joint("SHOULDER_PITCH")); // yaw    
     param->variables.push_back(param->robot->joint("SHOULDER_TO_ELBOW"));
     param->variables.push_back(param->robot->joint("ELBOW_UPPER"));
     param->variables.push_back(param->robot->joint("ELBOW_LOWER"));
