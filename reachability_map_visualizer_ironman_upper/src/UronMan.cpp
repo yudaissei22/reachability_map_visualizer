@@ -32,7 +32,6 @@ namespace reachability_map_visualizer_ironman_upper{
     cnoid::BodyLoader bodyLoader;
     // bodyloaderは、cnoid::BodyLoader型の変数bodyLoaderを作っていて、これは、ロボットモデルを読むためのオブジェクト。
     param->robot = bodyLoader.load(ros::package::getPath("UronMan_models") + "/UronManmain_with_human.wrl");
-    // param->robot = bodyLoader.load(ros::package::getPath("UronMan_models") + "/EasyHumanmain.wrl");
     /*
       param->robotは、paramというオブジェクトがさすrobotメンバ。
       さかのぼって実装を見てみると、cnoid::BodyPtr robot;というものがある。これのことか！
@@ -63,7 +62,8 @@ namespace reachability_map_visualizer_ironman_upper{
 					 0.0, 0.0, 0.0, 0.0,
 					 0.0, 0.0, 0.0, 0.0,					 
 					 0.0, 0.0, 0.0, 0.0,
-					 0.0, 0.0, 0.0, 0.0,  0.0,					 
+					 0.0, 0.0, 0.0, 0.0,
+					 0.0,					 
     };
 
     for(int j=0; j < param->robot->numJoints(); ++j){
@@ -131,11 +131,12 @@ namespace reachability_map_visualizer_ironman_upper{
       
     /* ik変数を登録? */
     param->constraints.push_back(constraints);
+    
 
     /* collisionの制約を追加 */
     const std::vector<std::pair<std::string, std::string>> collisionPairs = {
 									     // B4_BASE：10ペア
-									     {"B4_BASE", "B4_UU"},
+									     // {"B4_BASE", "B4_UU"},
 									     {"B4_BASE", "B4_END_YAW"},
     {"B4_BASE", "SHOULDER_FIRST"},
     {"B4_BASE", "SHOULDER_PITCH"},
@@ -147,8 +148,8 @@ namespace reachability_map_visualizer_ironman_upper{
     {"B4_BASE", "HAND"},
 
     // B4_UU：9ペア
-    {"B4_UU", "B4_END_YAW"},
-    {"B4_UU", "SHOULDER_FIRST"},
+    // {"B4_UU", "B4_END_YAW"},
+    // {"B4_UU", "SHOULDER_FIRST"},
     {"B4_UU", "SHOULDER_PITCH"},
     {"B4_UU", "SHOULDER_ROLL"},
     {"B4_UU", "SHOULDER_YAW"},
@@ -158,7 +159,7 @@ namespace reachability_map_visualizer_ironman_upper{
     {"B4_UU", "HAND"},
 
     // B4_END_YAW：8ペア
-    {"B4_END_YAW", "SHOULDER_FIRST"},
+    // {"B4_END_YAW", "SHOULDER_FIRST"},
     {"B4_END_YAW", "SHOULDER_PITCH"},
     {"B4_END_YAW", "SHOULDER_ROLL"},
     {"B4_END_YAW", "SHOULDER_YAW"},
@@ -168,7 +169,7 @@ namespace reachability_map_visualizer_ironman_upper{
     {"B4_END_YAW", "HAND"},
 
 									         // SHOULDER_FIRST：7ペア
-    {"SHOULDER_FIRST", "SHOULDER_PITCH"},
+    // {"SHOULDER_FIRST", "SHOULDER_PITCH"},
     {"SHOULDER_FIRST", "SHOULDER_ROLL"},
     {"SHOULDER_FIRST", "SHOULDER_YAW"},
     {"SHOULDER_FIRST", "ELBOW_PITCH"},
@@ -177,7 +178,7 @@ namespace reachability_map_visualizer_ironman_upper{
     {"SHOULDER_FIRST", "HAND"},
 
     // SHOULDER_PITCH：6ペア
-    {"SHOULDER_PITCH", "SHOULDER_ROLL"},
+    // {"SHOULDER_PITCH", "SHOULDER_ROLL"},
     {"SHOULDER_PITCH", "SHOULDER_YAW"},
     {"SHOULDER_PITCH", "ELBOW_PITCH"},
     {"SHOULDER_PITCH", "ELBOW_LOWER"},
@@ -185,29 +186,29 @@ namespace reachability_map_visualizer_ironman_upper{
     {"SHOULDER_PITCH", "HAND"},
 
     // SHOULDER_ROLL：5ペア
-    {"SHOULDER_ROLL", "SHOULDER_YAW"},
+    // {"SHOULDER_ROLL", "SHOULDER_YAW"},
     {"SHOULDER_ROLL", "ELBOW_PITCH"},
     {"SHOULDER_ROLL", "ELBOW_LOWER"},
     {"SHOULDER_ROLL", "WRIST"},
     {"SHOULDER_ROLL", "HAND"},
 
     // SHOULDER_YAW：4ペア
-    {"SHOULDER_YAW", "ELBOW_PITCH"},
+    // {"SHOULDER_YAW", "ELBOW_PITCH"},
     {"SHOULDER_YAW", "ELBOW_LOWER"},
     {"SHOULDER_YAW", "WRIST"},
     {"SHOULDER_YAW", "HAND"},
 
     // ELBOW_PITCH：3ペア
-    {"ELBOW_PITCH", "ELBOW_LOWER"},
+    // {"ELBOW_PITCH", "ELBOW_LOWER"},
     {"ELBOW_PITCH", "WRIST"},
     {"ELBOW_PITCH", "HAND"},
 
     // ELBOW_LOWER：2ペア
-    {"ELBOW_LOWER", "WRIST"},
-    {"ELBOW_LOWER", "HAND"},
+    // {"ELBOW_LOWER", "WRIST"},
+    // {"ELBOW_LOWER", "HAND"},
 
     // WRIST：1ペア
-    {"WRIST", "HAND"},
+    // {"WRIST", "HAND"},
 
     // 既存のROOTとの3ペア
     {"HAND", "ROOT"},
@@ -259,6 +260,10 @@ namespace reachability_map_visualizer_ironman_upper{
     }
     constraints.push_back(collision);
   }
+
+    // 関節制約と衝突制約をまとめて登録する。
+    param->constraints.push_back(constraints);
+
     
     /*
       これは、param->constraintsに、今作った制約群を追加していうｒ。

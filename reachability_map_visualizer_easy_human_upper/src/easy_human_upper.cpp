@@ -62,7 +62,7 @@ namespace reachability_map_visualizer_easy_human_upper{
     std::vector<double> reset_manip_pose{
 					 0.0, 0.0, 0.0, 0.0,
 					 0.0, 0.0, 0.0, 0.0,					 
-					 0.0, 0.0,
+					 0.0, 0.0, 0.0,
     };
 
     for(int j=0; j < param->robot->numJoints(); ++j){
@@ -137,11 +137,12 @@ namespace reachability_map_visualizer_easy_human_upper{
       
     /* collisionの制約 */
     // 直接の親子関係にあるリンクは対象から除外する。
+    
     const std::vector<std::pair<std::string, std::string>> collisionPairs = {
 									     
-    {"ROOT", "U2_CORE"},
-    {"ROOT", "SHOULDER_FIRST"},
-    // {"ROOT", "SHOULDER_PITCH"},
+    // 胴体は上腕以降との衝突を判定する。
+    // 肩甲骨側の U1_CORE / UU / U2_CORE / SHOULDER_FIRST は対象外。
+    // SHOULDER_PITCH は形状なし。
     {"ROOT", "SHOULDER_ROLL"},
     {"ROOT", "SHOULDER_TO_ELBOW"},
     {"ROOT", "ELBOW_UPPER"},
@@ -193,8 +194,8 @@ namespace reachability_map_visualizer_easy_human_upper{
     // {"SHOULDER_PITCH", "HAND"},
 
     // SHOULDER_ROLL
-
     {"SHOULDER_ROLL", "ELBOW_LOWER"},
+    {"SHOULDER_ROLL", "ELBOW_UPPER"},    
     {"SHOULDER_ROLL", "WRIST"},
     {"SHOULDER_ROLL", "HAND"},
 
@@ -208,7 +209,6 @@ namespace reachability_map_visualizer_easy_human_upper{
     {"ELBOW_UPPER", "HAND"},
 
     // ELBOW_LOWER
-
 									     
     };
 
